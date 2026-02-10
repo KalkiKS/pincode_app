@@ -8,12 +8,16 @@ router = APIRouter(
     tags=["Pincode"]
 )
 
-
 @router.get(
     "/{pincode}",
     status_code=status.HTTP_200_OK
 )
-def get_pincode(pincode: str):
+def get_pincode(pincode: int):
+    if pincode < 100000 or pincode > 999999:
+        return {
+            "success": False,
+            "message": "Invalid pincode"
+        }
     data = PincodeService.get_pincode_details(pincode)
     return {
         "success": True,

@@ -17,7 +17,7 @@ class PincodeModel:
     
 
     @staticmethod
-    def find_by_pincode(pincode: str):
+    def find_by_pincode(pincode: int):
         return PincodeModel.collection().find_one(
             {"pincode": pincode, "is_active": True},
             {"_id": 0}

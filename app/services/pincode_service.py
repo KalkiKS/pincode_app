@@ -5,7 +5,7 @@ from fastapi import HTTPException, status
 class PincodeService:
 
     @staticmethod
-    def get_pincode_details(pincode: str):
+    def get_pincode_details(pincode: int):
         pincode_data = PincodeModel.find_by_pincode(pincode)
 
         if not pincode_data:
