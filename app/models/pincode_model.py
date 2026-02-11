@@ -22,3 +22,35 @@ class PincodeModel:
             {"pincode": pincode, "is_active": True},
             {"_id": 0}
         )
+    
+    @staticmethod
+    def find_by_location(query: str):
+
+        if not query:
+            return {
+                "success": False,
+                "message": "Query cannot be empty"
+            }
+        
+        mongo_query = {
+            "$or": [
+                {"district": query},
+                {"state": query},
+                {"post_offices.name": query}
+            ]
+        }
+
+        result = list(PincodeModel.collection().find(mongo_query, {"_id": 0}))
+
+        if not result:
+            return {
+                "success": False,
+                "message": f"No data found for {query}"
+            }
+        
+        if result:
+            return {
+                "success": True,
+                "count": len(result),
+                "data": result
+            }

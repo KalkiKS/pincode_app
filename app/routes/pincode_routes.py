@@ -9,6 +9,28 @@ router = APIRouter(
 )
 
 @router.get(
+        "/search",
+        status_code=status.HTTP_200_OK
+)
+def search_qerry(location: str):
+    try:
+        if type(int(location)) == int:
+            return PincodeService.get_pincode_details(int(location))
+    except ValueError:
+        pass
+
+    location = str(location)
+    location = location.upper().strip()
+    if not location:
+        return {
+            "success": False,
+            "message": "Invalid Input"
+        }
+
+    return PincodeService.get_location_details(location)
+
+
+@router.get(
     "/{pincode}",
     status_code=status.HTTP_200_OK
 )
@@ -23,6 +45,7 @@ def get_pincode(pincode: int):
         "success": True,
         "data": data
     }
+
 
 @router.post(
     "",
