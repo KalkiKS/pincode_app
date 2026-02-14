@@ -1,6 +1,6 @@
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, Query, Path
 from app.services.pincode_service import PincodeService
-from app.schemas.pincode_schema import PincodeCreate
+from app.schemas.pincode_schema import PincodeCreate, StateResponseSchema, DistrictResponseSchema, PostOfficeResponseSchema
 from app.services.location_services import LocationService
 
 
@@ -9,46 +9,46 @@ router = APIRouter(
     tags=["Pincode"]
 )
 
+
 @router.get(
-        "/state/{name}",
+        "/state/{state}",
         status_code=status.HTTP_200_OK
 )
-def state_qerry(state: str, page: int = 1, limit: int =10):
-    if page < 1 or limit > 10 and limit <= 100 :
-        return {
-            "success": False,
-            "message": "Page must be greater than 0 and limit must be at least 10 or at most 100"
-        }
+def state_qerry(state: str,
+                page: int = Query(1, ge=1),
+                limit: int = Query(10, ge=10, le=50)
+            ):
     if not state:
         return {
             "success": False,
             "message": "State name is required"
         }
-    query = state.upper().strip()
-    data = LocationService.get_state_details(query, page, limit)
-    return data
+    return LocationService.get_state_details(state, page, limit)
+    
+
+
 
 @router.get(
-        "/district/{name}",
+        "/district/{district}",
         status_code=status.HTTP_200_OK
 )
-def district_query(district: str, page: int = 1, limit: int =10):
-    if page < 1 or limit > 10 and limit <= 100 :
-        return {
-            "success": False,
-            "message": "Page must be greater than 0 and limit must be at least 10 or at most 100"
-        }
+def district_query(district: str,
+                page: int = Query(1, ge=1),
+                limit: int = Query(10, ge=10, le=50)
+            ):
+
     if not district:
         return {
             "success": False,
             "message": "District name is required"
         }
-    query = district.upper().strip()
-    data = LocationService.get_district_details(query, page, limit)
-    return data
+    return LocationService.get_district_details(district, page, limit)
+
+
+
 
 @router.get(
-        "/postoffice/{name}",
+        "/postoffice/{postoffice}",
         status_code=status.HTTP_200_OK
 )
 def postoffice_query(postoffice: str):
@@ -57,26 +57,27 @@ def postoffice_query(postoffice: str):
             "success": False,
             "message": "Post office name is required"
         }
-    query = postoffice.upper().strip()
-    data = LocationService.get_postoffice_details(query)
-    return data
+
+    return LocationService.get_postoffice_details(postoffice)
+
+
+
 
 
 @router.get(
     "/{pincode}",
     status_code=status.HTTP_200_OK
 )
-def get_pincode(pincode: int):
-    if pincode < 100000 or pincode > 999999:
-        return {
-            "success": False,
-            "message": "Invalid pincode"
-        }
+def get_pincode(pincode: int = Path(..., ge=100000, le=999999)):
+    
     data = PincodeService.get_pincode_details(pincode)
     return {
         "success": True,
         "data": data
     }
+
+
+
 
 
 @router.post(
