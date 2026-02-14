@@ -1,6 +1,6 @@
-from fastapi import APIRouter, status, Query, Path
+from fastapi import APIRouter, status, Query, Path, Depends
 from app.services.pincode_service import PincodeService
-from app.schemas.pincode_schema import PincodeCreate, StateResponseSchema, DistrictResponseSchema, PostOfficeResponseSchema
+from app.schemas.pincode_schema import PincodeCreate, StateResponseSchema, DistrictResponseSchema, PostOfficeResponseSchema, PaginationParams
 from app.services.location_services import LocationService
 
 
@@ -12,29 +12,31 @@ router = APIRouter(
 
 @router.get(
         "/state/{state}",
+        response_model=StateResponseSchema,
         status_code=status.HTTP_200_OK
 )
-def state_qerry(state: str,
-                page: int = Query(1, ge=1),
-                limit: int = Query(10, ge=10, le=50)
+def state_qerry(
+                state: str = Path(..., min_length=2),
+                pagination: PaginationParams = Depends()
             ):
     if not state:
         return {
             "success": False,
             "message": "State name is required"
         }
-    return LocationService.get_state_details(state, page, limit)
+    return LocationService.get_state_details(state, pagination.page, pagination.limit)
     
 
 
 
 @router.get(
         "/district/{district}",
+        response_model=DistrictResponseSchema,
         status_code=status.HTTP_200_OK
 )
-def district_query(district: str,
-                page: int = Query(1, ge=1),
-                limit: int = Query(10, ge=10, le=50)
+def district_query(
+                district: str = Path(..., min_length=2),
+                pagination: PaginationParams = Depends()
             ):
 
     if not district:
@@ -42,16 +44,17 @@ def district_query(district: str,
             "success": False,
             "message": "District name is required"
         }
-    return LocationService.get_district_details(district, page, limit)
+    return LocationService.get_district_details(district, pagination.page, pagination.limit)
 
 
 
 
 @router.get(
         "/postoffice/{postoffice}",
+        response_model=PostOfficeResponseSchema,
         status_code=status.HTTP_200_OK
 )
-def postoffice_query(postoffice: str):
+def postoffice_query(postoffice: str = Path(..., min_length=2)):
     if not postoffice:
         return {
             "success": False,

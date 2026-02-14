@@ -86,3 +86,8 @@ class PostOfficeDetailSchema(BaseModel):
 class PostOfficeResponseSchema(BaseModel):
     success: bool
     data: List[PostOfficeDetailSchema]
+
+
+class PaginationParams(BaseModel):
+    page: int = Field(1, ge=1)
+    limit: int = Field(10, ge=10, le=50)
