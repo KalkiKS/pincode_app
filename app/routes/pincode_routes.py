@@ -1,4 +1,4 @@
-from fastapi import APIRouter, status, Query, Path, Depends
+from fastapi import APIRouter, status, Path, Depends
 from app.services.pincode_service import PincodeService
 from app.schemas.pincode_schema import PincodeCreate, StateResponseSchema, DistrictResponseSchema, PostOfficeResponseSchema, PaginationParams
 from app.services.location_services import LocationService

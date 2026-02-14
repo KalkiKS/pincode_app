@@ -34,8 +34,6 @@ class LocationService:
             data=district_objects
             )
 
-
-
         # Example: return StateModel.find_by_name(query)
 
 
