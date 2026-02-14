@@ -1,6 +1,7 @@
 from fastapi import APIRouter, status
 from app.services.pincode_service import PincodeService
 from app.schemas.pincode_schema import PincodeCreate
+from app.services.location_services import LocationService
 
 
 router = APIRouter(
@@ -9,25 +10,56 @@ router = APIRouter(
 )
 
 @router.get(
-        "/search",
+        "/state/{name}",
         status_code=status.HTTP_200_OK
 )
-def search_qerry(location: str):
-    try:
-        if type(int(location)) == int:
-            return PincodeService.get_pincode_details(int(location))
-    except ValueError:
-        pass
-
-    location = str(location)
-    location = location.upper().strip()
-    if not location:
+def state_qerry(state: str, page: int = 1, limit: int =10):
+    if page < 1 or limit > 10 and limit <= 100 :
         return {
             "success": False,
-            "message": "Invalid Input"
+            "message": "Page must be greater than 0 and limit must be at least 10 or at most 100"
         }
+    if not state:
+        return {
+            "success": False,
+            "message": "State name is required"
+        }
+    query = state.upper().strip()
+    data = LocationService.get_state_details(query, page, limit)
+    return data
 
-    return PincodeService.get_location_details(location)
+@router.get(
+        "/district/{name}",
+        status_code=status.HTTP_200_OK
+)
+def district_query(district: str, page: int = 1, limit: int =10):
+    if page < 1 or limit > 10 and limit <= 100 :
+        return {
+            "success": False,
+            "message": "Page must be greater than 0 and limit must be at least 10 or at most 100"
+        }
+    if not district:
+        return {
+            "success": False,
+            "message": "District name is required"
+        }
+    query = district.upper().strip()
+    data = LocationService.get_district_details(query, page, limit)
+    return data
+
+@router.get(
+        "/postoffice/{name}",
+        status_code=status.HTTP_200_OK
+)
+def postoffice_query(postoffice: str):
+    if not postoffice:
+        return {
+            "success": False,
+            "message": "Post office name is required"
+        }
+    query = postoffice.upper().strip()
+    data = LocationService.get_postoffice_details(query)
+    return data
 
 
 @router.get(

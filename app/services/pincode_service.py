@@ -27,17 +27,3 @@ class PincodeService:
             )
         
         return PincodeModel.create_pincode(pincode_data.dict())
-    
-    @staticmethod
-    def get_location_details(query: str):
-
-        location_data = PincodeModel.find_by_location(query)
-
-        if not location_data:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=location_data["message"] # type: ignore
-            )
-
-        if location_data:
-            return location_data

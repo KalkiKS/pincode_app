@@ -24,33 +24,55 @@ class PincodeModel:
         )
     
     @staticmethod
-    def find_by_location(query: str):
+    def find_by_state(query, skip, limit):
 
-        if not query:
-            return {
-                "success": False,
-                "message": "Query cannot be empty"
-            }
-        
-        mongo_query = {
-            "$or": [
-                {"district": query},
-                {"state": query},
-                {"post_offices.name": query}
-            ]
-        }
+        pipelines = [
+            {
+                "$match": {
+                    "state": query
+                }
+            },
+            {
+                "$group": {
+                    "_id": "$district",
+                    "pincodes": { "$addToSet": "$pincode" }
+                }
+            },
+            {
+                "$project": {
+                    "_id": 0,
+                    "district": "$_id",
+                    "pincodes": 1
+                    
+                }
+            },
+            {
+                "$sort": {
+                    "district": 1
+                }
+            },
+            { "$skip": skip },
+            { "$limit": limit }
+        ]
 
-        result = list(PincodeModel.collection().find(mongo_query, {"_id": 0}))
+        data = PincodeModel.collection().aggregate(pipelines)
+        return list(data)
+    
+    @staticmethod
+    def count_state_districts(query):
+        pipeline = [
+            {"$match": {"state": query}},
+            {"$group": {"_id": "$district"}},
+            {"$count": "total"}
+        ]
 
-        if not result:
-            return {
-                "success": False,
-                "message": f"No data found for {query}"
-            }
-        
-        if result:
-            return {
-                "success": True,
-                "count": len(result),
-                "data": result
-            }
+        result = PincodeModel.collection().aggregate(pipeline)
+        return result.next().get("total", 0) if result else 0
+
+    @staticmethod
+    def find_by_district(query: str, page: int, limit: int):
+        pass
+
+    @staticmethod
+    def find_by_postoffice(query: str, page: int, limit: int):
+        pass
