@@ -54,6 +54,7 @@ class PostOfficeBase(BaseModel):
 
 class DistrictBase(BaseModel):
     pincode: int
+    post_offices_count: int
     post_offices: List[PostOfficeBase]
 
 class DistrictResponseSchema(BaseModel):

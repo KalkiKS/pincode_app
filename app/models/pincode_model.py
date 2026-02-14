@@ -93,13 +93,15 @@ class LocationModel:
                             "name": "$post_offices.name",
                             "delivery": "$post_offices.delivery"
                         }
-                    }
+                    },
+                    "post_offices_count": { "$sum": 1 }
                 }
             },
             {
                 "$project": {
                     "_id": 0,
                     "pincode": "$_id",
+                    "post_offices_count": 1,
                     "post_offices": 1
                 }
             },
