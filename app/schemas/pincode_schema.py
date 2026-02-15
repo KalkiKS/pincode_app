@@ -36,6 +36,7 @@ class PincodeResponse(PincodeBase):
 
 class StateBase(BaseModel):
     district: str
+    total_pincodes: int
     pincodes: List[int]
 
 

@@ -37,15 +37,16 @@ class LocationModel:
             {
                 "$group": {
                     "_id": "$district",
-                    "pincodes": { "$addToSet": "$pincode" }
+                    "pincodes": { "$addToSet": "$pincode" },
+                    "total_pincodes": {"$sum": 1}
                 }
             },
             {
                 "$project": {
                     "_id": 0,
                     "district": "$_id",
+                    "total_pincodes": 1,
                     "pincodes": 1
-                    
                 }
             },
             {
