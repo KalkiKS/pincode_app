@@ -1,4 +1,3 @@
-from app.models.validate_location import ValidateLocation
 from app.models.pincode_model import LocationModel
 from app.schemas.pincode_schema import StateBase, StateResponseSchema, DistrictBase, DistrictResponseSchema, PostOfficeDetailSchema, PostOfficeResponseSchema
 from fastapi import HTTPException, status
@@ -9,15 +8,15 @@ class LocationService:
     def get_state_details(query, page, limit):
 
         query = query.upper().strip()
+        
+        skip = (page - 1) * limit
+        data = LocationModel.find_by_state(query=query, skip=skip, limit=limit)
 
-        if not ValidateLocation.validate_state(query):
+        if not data:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="State not found"
             )
-        
-        skip = (page - 1) * limit
-        data = LocationModel.find_by_state(query=query, skip=skip, limit=limit)
 
         district_objects = [StateBase(**item) for item in data]
 
@@ -41,16 +40,16 @@ class LocationService:
     def get_district_details(query: str, page: int, limit: int):
 
         query = query.upper().strip()
-
-        if not ValidateLocation.validate_district(query):
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="District not found"
-            )
         
         skip = (page - 1) * limit
 
         data = LocationModel.find_by_district(query=query, skip=skip, limit=limit)
+
+        if not data:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="District not found"
+            )
 
         district_objects = [DistrictBase(**item) for item in data]
         
@@ -73,14 +72,14 @@ class LocationService:
     def get_postoffice_details(query: str):
 
         query = query.upper().replace(" ", "")
-
-        if not ValidateLocation.validate_postoffice(query):
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Post office not found"
-            )
         
         data = LocationModel.find_by_postoffice(query)
+
+        if not data:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Post Office not found"
+            )
 
         postoffice_objects = [PostOfficeDetailSchema(**item) for item in data]
 
